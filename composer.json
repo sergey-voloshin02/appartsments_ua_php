@@ -1,0 +1,11 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Components\\": "src/components",
+            "Controllers\\": "src/controllers"
+        }
+    },
+    "require": {
+        "ramsey/uuid": "^4.7"
+    }
+}
