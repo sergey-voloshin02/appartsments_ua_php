@@ -12,7 +12,7 @@ $pdo = $db->getConnection();
 $router = new Router();
 
 // Реєстрація
-$router->add('/register', function () use ($pdo) {
+$router->add('POST', '/register', function () use ($pdo) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
 
     $registration = new UserController($pdo);
@@ -20,19 +20,26 @@ $router->add('/register', function () use ($pdo) {
 });
 
 // Авторизація
-$router->add('/login', function () use ($pdo) {
+$router->add('POST', '/login', function () use ($pdo) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
 
     $registration = new UserController($pdo);
     return $registration->login($data);
 });
 
-// Роут юзера
-$router->add('/user', function () use ($pdo) {
+// Отримання даних по юзеру
+$router->add('GET', '/user', function () use ($pdo) {
+
+    // $registration = new UserController($pdo);
+    // return $registration->login($data);
+});
+
+// Редагування юзера
+$router->add('POST', '/user', function () use ($pdo) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
 
-    $registration = new UserController($pdo);
-    return $registration->login($data);
+    // $registration = new UserController($pdo);
+    // return $registration->login($data);
 });
 
 $router->setNotFound(function () {

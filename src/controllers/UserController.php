@@ -14,6 +14,11 @@ class UserController
         $this->pdo = $pdo;
     }
 
+    /**
+     * Логіка реєстрації юзера
+     * @param array $userData Очікує ключі: 'email', 'name', 'password'
+     * @return string
+     */
     public function register(array $userData)
     {
         try {
@@ -54,6 +59,11 @@ class UserController
         }
     }
 
+    /**
+     * Логіка авторизації юзера
+     * @param array $userData Очікує ключі: 'email', 'password'
+     * @return string
+     */
     public function login(array $userData)
     {
         try {

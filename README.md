@@ -1,5 +1,8 @@
 # appartsments_ua_php
 
+## Composer
+composer install / composer update
+
 ## Build docker & start project
 docker-compose up -d --build
 
