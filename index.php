@@ -10,36 +10,29 @@ $db = new Database();
 $pdo = $db->getConnection();
 
 $router = new Router();
+$userController = new UserController($pdo);
 
 // Реєстрація
-$router->add('POST', '/register', function () use ($pdo) {
+$router->add('POST', '/register', function () use ($userController) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
-
-    $registration = new UserController($pdo);
-    return $registration->register($data);
+    return $userController->register($data);
 });
 
 // Авторизація
-$router->add('POST', '/login', function () use ($pdo) {
+$router->add('POST', '/login', function () use ($userController) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
-
-    $registration = new UserController($pdo);
-    return $registration->login($data);
+    return $userController->login($data);
 });
 
 // Отримання даних по юзеру
-$router->add('GET', '/user', function () use ($pdo) {
-
-    // $registration = new UserController($pdo);
-    // return $registration->login($data);
+$router->add('GET', '/user', function () use ($userController) {
+    return $userController->getUser($_GET);
 });
 
 // Редагування юзера
-$router->add('POST', '/user', function () use ($pdo) {
-    $data = (array) json_decode(file_get_contents('php://input'), true);
-
-    // $registration = new UserController($pdo);
-    // return $registration->login($data);
+$router->add('POST', '/user', function () use ($userController) {
+    // $data = (array) json_decode(file_get_contents('php://input'), true);
+    // return $userController->editUser($data);
 });
 
 $router->setNotFound(function () {

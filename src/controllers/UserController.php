@@ -50,12 +50,18 @@ class UserController
             ]);
 
             $this->pdo->commit();
-            echo json_encode(['message' => 'User registered successfully']);
+            echo json_encode([
+                'status' => 'done',
+                'message' => 'User registered successfully'
+            ]);
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             // Логика обработки ошибки
             http_response_code(500);
-            echo json_encode(['error' => 'Registration failed: ' . $e->getMessage()]);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Operation failed: ' . $e->getMessage()
+            ]);
         }
     }
 
@@ -87,28 +93,81 @@ class UserController
                 ), JSON_UNESCAPED_UNICODE);
             }
 
-            // перевірка токена
-            $stmt = $this->pdo->prepare("SELECT id FROM users WHERE user_email = ?");
+            // перевірка пошти
+            $stmt = $this->pdo->prepare("SELECT id, user_password FROM users WHERE user_email = ? LIMIT 1");
             $stmt->execute([
                 $userData['email']
             ]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $token = strtoupper(Uuid::uuid4()->toString());
+            if ($user) {
 
-            $stmt = $this->pdo->prepare("INSERT INTO tokens (name, phone, password) VALUES (?, ?, ?)");
-            $stmt->execute([
-                $userData['name'],
-                $userData['phone'],
-                password_hash($userData['password'], PASSWORD_DEFAULT)
-            ]);
+                if (password_verify($userData['password'], $user['user_password'])) {
 
-            $this->pdo->commit();
-            echo json_encode(['message' => 'User registered successfully']);
+                    $token = strtoupper(Uuid::uuid4()->toString());
+
+                    $stmt = $this->pdo->prepare("INSERT INTO tokens (token, user_id, created_at) VALUES (?, ?, ?)");
+                    $stmt->execute([
+                        $token,
+                        $user['id'],
+                        date('Y-m-d H:i:s')
+                    ]);
+
+                    $this->pdo->commit();
+                    echo json_encode([
+                        'status' => 'done',
+                        'message' => 'User registered successfully',
+                        'data' => array(
+                            'token' => $token
+                        )
+                    ]);
+                } else {
+                    return json_encode(array(
+                        'status' => 'error',
+                        'message' => 'Password is incorrect'
+                    ), JSON_UNESCAPED_UNICODE);
+                }
+            } else {
+                return json_encode(array(
+                    'status' => 'error',
+                    'message' => 'User with this email was not found'
+                ), JSON_UNESCAPED_UNICODE);
+            }
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             // Логика обработки ошибки
             http_response_code(500);
-            echo json_encode(['error' => 'Registration failed: ' . $e->getMessage()]);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Operation failed: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Логіка отримання інформації по юзеру
+     * @param array $params Очікує токен
+     * @return string
+     */
+    public function getUser(array $params)
+    {
+        try {
+            $this->pdo->beginTransaction();
+
+
+
+            $this->pdo->commit();
+            echo json_encode([
+                'status' => 'done',
+                'message' => 'User registered successfully'
+            ]);
+        } catch (\Exception $e) {
+            $this->pdo->rollBack();
+            http_response_code(500);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Operation failed: ' . $e->getMessage()
+            ]);
         }
     }
 }
