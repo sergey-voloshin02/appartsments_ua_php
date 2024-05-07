@@ -3,7 +3,7 @@
 namespace Controllers;
 
 use PDO;
-use Ramsey\Uuid\Uuid;
+use Components\SysMethods;
 
 class UserController
 {
@@ -16,7 +16,7 @@ class UserController
 
     /**
      * Логіка реєстрації юзера
-     * @param array $userData Очікує ключі: 'email', 'name', 'password'
+     * @param array $userData ['email', 'name', 'password']
      * @return string
      */
     public function register(array $userData)
@@ -67,7 +67,7 @@ class UserController
 
     /**
      * Логіка авторизації юзера
-     * @param array $userData Очікує ключі: 'email', 'password'
+     * @param array $userData ['email', 'password']
      * @return string
      */
     public function login(array $userData)
@@ -104,7 +104,7 @@ class UserController
 
                 if (password_verify($userData['password'], $user['user_password'])) {
 
-                    $token = strtoupper(Uuid::uuid4()->toString());
+                    $token = SysMethods::generateToken();
 
                     $stmt = $this->pdo->prepare("INSERT INTO tokens (token, user_id, created_at) VALUES (?, ?, ?)");
                     $stmt->execute([
@@ -159,7 +159,16 @@ class UserController
             $this->pdo->commit();
             echo json_encode([
                 'status' => 'done',
-                'message' => 'User registered successfully'
+                'data' => array(
+                    'userData' => [],
+                    'stat' => array(
+                        'postViews' => 0,
+                        'phoneViews' => 0,
+                        'responses' => 0, // відгуки на оголошення
+                    ),
+                    'likes' => [],
+                    'posts' => [],
+                )
             ]);
         } catch (\Exception $e) {
             $this->pdo->rollBack();
