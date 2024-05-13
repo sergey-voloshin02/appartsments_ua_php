@@ -29,7 +29,7 @@ class UserController
             $missingFields = [];
 
             foreach ($requiredFields as $field) {
-                if (empty($data[$field])) {
+                if (empty($userData[$field])) {
                     $missingFields[] = $field;
                 }
             }
@@ -42,10 +42,10 @@ class UserController
                 );
             }
 
-            $stmt = $this->pdo->prepare("INSERT INTO users (name, phone, password) VALUES (?, ?, ?)");
+            $stmt = $this->pdo->prepare("INSERT INTO users (user_name, user_email, user_password) VALUES (?, ?, ?)");
             $stmt->execute([
                 $userData['name'],
-                $userData['phone'],
+                $userData['email'],
                 password_hash($userData['password'], PASSWORD_DEFAULT)
             ]);
 
@@ -80,7 +80,7 @@ class UserController
             $missingFields = [];
 
             foreach ($requiredFields as $field) {
-                if (empty($data[$field])) {
+                if (empty($userData[$field])) {
                     $missingFields[] = $field;
                 }
             }

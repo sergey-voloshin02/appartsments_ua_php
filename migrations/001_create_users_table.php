@@ -3,6 +3,7 @@
 $stmt = $pdo->prepare(
     "CREATE TABLE `users` (
         `id` int NOT NULL AUTO_INCREMENT,
+        `user_name` varchar(255) NOT NULL, 
         `user_phone` varchar(255) DEFAULT NULL,
         `user_email` varchar(255) NOT NULL,
         `user_password` varchar(255) NOT NULL,

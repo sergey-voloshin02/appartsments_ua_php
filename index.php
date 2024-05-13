@@ -25,14 +25,13 @@ function returnJsonResponse($data)
 // Реєстрація
 $router->add('POST', '/register', function () use ($userController) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
-    // return $userController->register($data);
     returnJsonResponse($userController->register($data));
 });
 
 // Авторизація
 $router->add('POST', '/login', function () use ($userController) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
-    $response = $userController->login($data);
+    returnJsonResponse($userController->login($data));
 });
 
 // Отримання даних по юзеру

@@ -7,10 +7,7 @@
 `docker-compose up -d --build`
 
 ## Start project 
-`docker compose up -d`  
-
-## Start migrations
-`php config/migrate.php`
+`docker compose up -d`
 
 ## Usage
 Web App - http://localhost:8000  
