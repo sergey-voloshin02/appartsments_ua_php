@@ -11,19 +11,28 @@ $db = new Database();
 $pdo = $db->getConnection();
 
 $router = new Router();
+
 $userController = new UserController($pdo);
 $postController = new PostController($pdo);
+
+function returnJsonResponse($data)
+{
+    header('Content-Type: application/json');
+    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 // Реєстрація
 $router->add('POST', '/register', function () use ($userController) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
-    return $userController->register($data);
+    // return $userController->register($data);
+    returnJsonResponse($userController->register($data));
 });
 
 // Авторизація
 $router->add('POST', '/login', function () use ($userController) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
-    return $userController->login($data);
+    $response = $userController->login($data);
 });
 
 // Отримання даних по юзеру
@@ -48,7 +57,7 @@ $router->add('GET', '/admin/posts', function () use ($postController) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
     // return $postController->login($data);
 });
- 
+
 $router->setNotFound(function () {
     http_response_code(404);
     echo json_encode(array(

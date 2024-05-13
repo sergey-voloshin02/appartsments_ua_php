@@ -36,10 +36,10 @@ class UserController
 
             if (!empty($missingFields)) {
                 http_response_code(400);
-                return json_encode(array(
+                return array(
                     'status' => 'error',
                     'message' => 'Missing required fields: ' . implode(', ', $missingFields)
-                ), JSON_UNESCAPED_UNICODE);
+                );
             }
 
             $stmt = $this->pdo->prepare("INSERT INTO users (name, phone, password) VALUES (?, ?, ?)");
@@ -50,18 +50,18 @@ class UserController
             ]);
 
             $this->pdo->commit();
-            echo json_encode([
+            return array(
                 'status' => 'done',
                 'message' => 'User registered successfully'
-            ]);
+            );
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             // Логика обработки ошибки
             http_response_code(500);
-            echo json_encode([
+            return array(
                 'status' => 'error',
                 'message' => 'Operation failed: ' . $e->getMessage()
-            ]);
+            );
         }
     }
 
@@ -87,10 +87,10 @@ class UserController
 
             if (!empty($missingFields)) {
                 http_response_code(400);
-                return json_encode(array(
+                return array(
                     'status' => 'error',
                     'message' => 'Missing required fields: ' . implode(', ', $missingFields)
-                ), JSON_UNESCAPED_UNICODE);
+                );
             }
 
             // перевірка пошти
@@ -114,33 +114,33 @@ class UserController
                     ]);
 
                     $this->pdo->commit();
-                    echo json_encode([
+                    return array(
                         'status' => 'done',
                         'message' => 'User registered successfully',
                         'data' => array(
                             'token' => $token
                         )
-                    ]);
+                    );
                 } else {
-                    return json_encode(array(
+                    return array(
                         'status' => 'error',
                         'message' => 'Password is incorrect'
-                    ), JSON_UNESCAPED_UNICODE);
+                    );
                 }
             } else {
-                return json_encode(array(
+                return array(
                     'status' => 'error',
                     'message' => 'User with this email was not found'
-                ), JSON_UNESCAPED_UNICODE);
+                );
             }
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             // Логика обработки ошибки
             http_response_code(500);
-            echo json_encode([
+            return array(
                 'status' => 'error',
                 'message' => 'Operation failed: ' . $e->getMessage()
-            ]);
+            );
         }
     }
 
@@ -157,7 +157,7 @@ class UserController
 
 
             $this->pdo->commit();
-            echo json_encode([
+            return array(
                 'status' => 'done',
                 'data' => array(
                     'userData' => [],
@@ -169,14 +169,14 @@ class UserController
                     'likes' => [],
                     'posts' => [],
                 )
-            ]);
+            );
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             http_response_code(500);
-            echo json_encode([
+            return array(
                 'status' => 'error',
                 'message' => 'Operation failed: ' . $e->getMessage()
-            ]);
+            );
         }
     }
 }

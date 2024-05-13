@@ -35,10 +35,10 @@ class PostController
 
             if (!empty($missingFields)) {
                 http_response_code(400);
-                return json_encode(array(
+                return array(
                     'status' => 'error',
                     'message' => 'Missing required fields: ' . implode(', ', $missingFields)
-                ), JSON_UNESCAPED_UNICODE);
+                );
             }
 
             $stmt = $this->pdo->prepare("INSERT INTO users (name, phone, password) VALUES (?, ?, ?)");
@@ -49,18 +49,18 @@ class PostController
             ]);
 
             $this->pdo->commit();
-            echo json_encode([
+            return array(
                 'status' => 'done',
                 'message' => 'User registered successfully'
-            ]);
+            );
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             // Логика обработки ошибки
             http_response_code(500);
-            echo json_encode([
+            return array(
                 'status' => 'error',
                 'message' => 'Operation failed: ' . $e->getMessage()
-            ]);
+            );
         }
     }
 
