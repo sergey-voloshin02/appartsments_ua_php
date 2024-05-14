@@ -22,6 +22,12 @@ function returnJsonResponse($data)
     exit;
 }
 
+// Точка входу, головна сторінка
+$router->add('GET', '/main', function () use ($postController) {
+    $data = (array) json_decode(file_get_contents('php://input'), true);
+    returnJsonResponse($postController->main($_GET));
+});
+
 // Реєстрація
 $router->add('POST', '/register', function () use ($userController) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
@@ -36,7 +42,7 @@ $router->add('POST', '/login', function () use ($userController) {
 
 // Отримання даних по юзеру
 $router->add('GET', '/user', function () use ($userController) {
-    return $userController->getUser($_GET);
+    returnJsonResponse($userController->getUser($_GET));
 });
 
 // Редагування юзера
