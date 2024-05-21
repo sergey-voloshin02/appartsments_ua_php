@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use Exception;
 use PDO;
 
 class PostController
@@ -23,30 +24,10 @@ class PostController
         try {
             $this->pdo->beginTransaction();
 
-            // Перевірка обов'язкових полів
-            $requiredFields = ['email', 'name', 'password'];
-            $missingFields = [];
 
-            foreach ($requiredFields as $field) {
-                if (empty($data[$field])) {
-                    $missingFields[] = $field;
-                }
-            }
 
-            if (!empty($missingFields)) {
-                http_response_code(400);
-                return array(
-                    'status' => 'error',
-                    'message' => 'Missing required fields: ' . implode(', ', $missingFields)
-                );
-            }
-
-            $stmt = $this->pdo->prepare("INSERT INTO users (name, phone, password) VALUES (?, ?, ?)");
-            $stmt->execute([
-                $userData['name'],
-                $userData['phone'],
-                password_hash($userData['password'], PASSWORD_DEFAULT)
-            ]);
+            $stmt = $this->pdo->prepare("");
+            $stmt->execute([]);
 
             $this->pdo->commit();
             return array(
@@ -67,15 +48,20 @@ class PostController
     /**
      * Створення оголошення
      * @param array $post
+     * @param array $files
      * @return string
      */
-    public function addPost(array $post)
+    public function addPost(array $post, array $files)
     {
         try {
             $this->pdo->beginTransaction();
 
             // Перевірка обов'язкових полів
-            $requiredFields = ['email', 'name', 'password'];
+            $requiredFields = [
+                'title', 'status', 'period', 'type', 'price', 'quadrature', 'numberOfRooms',
+                'city', 'adress', 'age', 'badrooms', 'bathrooms', 'parking', 'heating',
+                'waterSupply', 'gym', 'storeroom', 'realtyPlanDescription'
+            ];
             $missingFields = [];
 
             foreach ($requiredFields as $field) {
@@ -92,17 +78,61 @@ class PostController
                 );
             }
 
-            $stmt = $this->pdo->prepare("INSERT INTO users (name, phone, password) VALUES (?, ?, ?)");
+            // Проверка количества изображений
+            if (count($files['images']['name']) > 20) {
+                http_response_code(400);
+                return array(
+                    'status' => 'error',
+                    'message' => 'Too many images. Maximum allowed is 20.'
+                );
+            }
+
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO 
+                    posts 
+                        (title, description, publication_status, realty_status, plan_photo, data) 
+                    VALUES 
+                        (?, ?, ?, ?, ?, ?)
+                        "
+            );
             $stmt->execute([
-                $userData['name'],
-                $userData['phone'],
-                password_hash($userData['password'], PASSWORD_DEFAULT)
+                $post['title'],
+                $post['description'],
+                'unapproved',
+                $post['status'],
+                $post['plan_photo'],
+                json_encode(array())
             ]);
+
+            $postId = $this->pdo->lastInsertId();
+
+            // збереження зображень
+            $isMain = true;
+            foreach ($files['images']['tmp_name'] as $key => $tmp_name) {
+                $file_name = $files['images']['name'][$key];
+                $file_tmp = $files['images']['tmp_name'][$key];
+                $upload_dir = 'uploads/';
+                $file_path = $upload_dir . basename($file_name);
+                $sortOrder = $key + 1; // Порядок сортировки
+
+                if (move_uploaded_file($file_tmp, $file_path)) {
+                    $stmt = $this->pdo->prepare("INSERT INTO posts_images (post_id, image_path, is_main, sort_order) VALUES (?, ?, ?, ?)");
+                    $stmt->execute([
+                        $postId,
+                        $file_path,
+                        $isMain ? 1 : 0,
+                        $sortOrder
+                    ]);
+                    $isMain = false;
+                } else {
+                    throw new Exception("Failed to upload image: " . $file_name);
+                }
+            }
 
             $this->pdo->commit();
             return array(
                 'status' => 'done',
-                'message' => 'User registered successfully'
+                'message' => ''
             );
         } catch (\Exception $e) {
             $this->pdo->rollBack();
@@ -136,9 +166,10 @@ class PostController
     /**
      * Список активних оголошень
      * @param array $post
+     * @param array $filters
      * @return string
      */
-    public function getActivePosts(array $post)
+    public function getActivePosts(array $post, array $filters)
     {
     }
 }

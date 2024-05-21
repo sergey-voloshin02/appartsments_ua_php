@@ -167,7 +167,7 @@ class UserController
                         'responses' => 0, // відгуки на оголошення
                     ),
                     'likes' => [],
-                    'posts' => [],
+                    'myposts' => [],
                 )
             );
         } catch (\Exception $e) {

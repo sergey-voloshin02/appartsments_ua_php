@@ -4,6 +4,7 @@ $stmt = $pdo->prepare(
     "CREATE TABLE `posts_stats` (
         `id` int NOT NULL AUTO_INCREMENT,
         `post_id` int NOT NULL,
+        `user_id` int NOT NULL,
         `phone_views` int NOT NULL DEFAULT '0',
         `post_views` int NOT NULL DEFAULT '0',
         `post_responses` int NOT NULL DEFAULT '0',
