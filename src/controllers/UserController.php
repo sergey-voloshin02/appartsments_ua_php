@@ -42,18 +42,33 @@ class UserController
                 );
             }
 
-            $stmt = $this->pdo->prepare("INSERT INTO users (user_name, user_email, user_password) VALUES (?, ?, ?)");
+            // перевірка пошти
+            $stmt = $this->pdo->prepare("SELECT id FROM users WHERE user_email = ? LIMIT 1");
             $stmt->execute([
-                $userData['name'],
-                $userData['email'],
-                password_hash($userData['password'], PASSWORD_DEFAULT)
+                $userData['email']
             ]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $this->pdo->commit();
-            return array(
-                'status' => 'done',
-                'message' => 'User registered successfully'
-            );
+            if (!$user) {
+
+                $stmt = $this->pdo->prepare("INSERT INTO users (user_name, user_email, user_password) VALUES (?, ?, ?)");
+                $stmt->execute([
+                    $userData['name'],
+                    $userData['email'],
+                    password_hash($userData['password'], PASSWORD_DEFAULT)
+                ]);
+
+                $this->pdo->commit();
+                return array(
+                    'status' => 'done',
+                    'message' => 'User registered successfully'
+                );
+            } else {
+                return array(
+                    'status' => 'error',
+                    'message' => 'Email already registered'
+                );
+            }
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             // Логика обработки ошибки
