@@ -45,6 +45,12 @@ $router->add('GET', '/user', function () use ($userController) {
     returnJsonResponse($userController->getUser($_GET));
 });
 
+// Отримання даних по юзеру
+$router->add('POST', '/logout', function () use ($userController) {
+    $data = (array) json_decode(file_get_contents('php://input'), true);
+    returnJsonResponse($userController->logout($data));
+});
+
 // Редагування юзера
 $router->add('POST', '/user', function () use ($userController) {
     // $data = (array) json_decode(file_get_contents('php://input'), true);

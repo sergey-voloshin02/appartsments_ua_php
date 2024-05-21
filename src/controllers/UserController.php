@@ -145,6 +145,55 @@ class UserController
     }
 
     /**
+     * Логіка виходу з аккаунту
+     * @param array $data
+     * @return string
+     */
+    public function logout(array $data)
+    {
+        try {
+            $this->pdo->beginTransaction();
+
+            // Перевірка обов'язкових полів
+            $requiredFields = ['token'];
+            $missingFields = [];
+
+            foreach ($requiredFields as $field) {
+                if (empty($data[$field])) {
+                    $missingFields[] = $field;
+                }
+            }
+
+            if (!empty($missingFields)) {
+                http_response_code(400);
+                return array(
+                    'status' => 'error',
+                    'message' => 'Missing required fields: ' . implode(', ', $missingFields)
+                );
+            }
+
+            $stmt = $this->pdo->prepare("DELETE FROM tokens WHERE token = ?");
+            $stmt->execute([
+                $data['token']
+            ]);
+
+            $this->pdo->commit();
+            return array(
+                'status' => 'done',
+                'message' => 'User registered logouted'
+            );
+        } catch (\Exception $e) {
+            $this->pdo->rollBack();
+            // Логика обработки ошибки
+            http_response_code(500);
+            return array(
+                'status' => 'error',
+                'message' => 'Operation failed: ' . $e->getMessage()
+            );
+        }
+    }
+
+    /**
      * Логіка отримання інформації по юзеру
      * @param array $params Очікує токен
      * @return string
