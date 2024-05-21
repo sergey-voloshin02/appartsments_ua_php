@@ -51,10 +51,10 @@ $router->add('POST', '/user', function () use ($userController) {
     // return $userController->editUser($data);
 });
 
-// створення оголошення
+// створення оголошення 
 $router->add('POST', '/post', function () use ($postController) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
-    // return $postController->login($data);
+    return $postController->addPost($data, $_FILES);
 });
 
 // Отримання оголошень що очікують перевірку
