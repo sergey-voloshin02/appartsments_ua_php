@@ -1,5 +1,15 @@
 <?php
 
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Проверка метода OPTIONS для CORS preflight запросов
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 require 'vendor/autoload.php';
 
 use Components\Database;
@@ -53,8 +63,8 @@ $router->add('POST', '/logout', function () use ($userController) {
 
 // Редагування юзера
 $router->add('POST', '/user', function () use ($userController) {
-    // $data = (array) json_decode(file_get_contents('php://input'), true);
-    // return $userController->editUser($data);
+    $data = (array) json_decode(file_get_contents('php://input'), true);
+    return $userController->editUser($data);
 });
 
 // створення оголошення 
@@ -66,7 +76,7 @@ $router->add('POST', '/post', function () use ($postController) {
 // Отримання оголошень що очікують перевірку
 $router->add('GET', '/admin/posts', function () use ($postController) {
     $data = (array) json_decode(file_get_contents('php://input'), true);
-    // return $postController->login($data);
+    return $postController->getUncheckedPosts($data);
 });
 
 $router->setNotFound(function () {
